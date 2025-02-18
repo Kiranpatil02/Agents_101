@@ -49,13 +49,14 @@ custom_role_conversions=None,
 
 # Import tool from Hub
 image_generation_tool = load_tool("agents-course/text-to-image", trust_remote_code=True)
+Duckgo_web_search=DuckDuckGoSearchTool()
 
 with open("prompts.yaml", 'r') as stream:
     prompt_templates = yaml.safe_load(stream)
     
 agent = CodeAgent(
     model=model,
-    tools=[final_answer,image_generation_tool,get_current_time_in_timezone], ## add your tools here (don't remove final answer)
+    tools=[final_answer,image_generation_tool,get_current_time_in_timezone,Duckgo_web_search], ## add your tools here (don't remove final answer)
     max_steps=6,
     verbosity_level=1,
     grammar=None,
