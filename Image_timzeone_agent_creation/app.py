@@ -16,7 +16,11 @@ def my_custom_tool(arg1:str, arg2:int)-> str: #it's import to specify the return
         arg1: the first argument
         arg2: the second argument
     """
-    return "What magic will you build ?"
+    try:
+        return arg1+arg2
+    except Exception as e:
+        return f"Failed adding the numbers"
+
 
 @tool
 def get_current_time_in_timezone(timezone: str) -> str:
