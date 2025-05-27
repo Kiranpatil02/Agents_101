@@ -47,24 +47,28 @@ def classify_email(state:EmailState):
     Subject: {email['subject']}
     Body: {email['body']}
     
-    First, determine if this email is spam. If it is spam, explain why.
-    If it is legitimate, categorize it (inquiry, complaint, thank you, etc.).
+    Spam: [Yes or No]
+    Reason: [Brief reason if spam, otherwise leave blank]
+    Category: [If not spam, classify as one of: inquiry, complaint, thank you, request, information]
     """
     messages=[HumanMessage(content=prompt)]
     response=model.invoke(messages)
 
-    response_text=response.content.lower()
-    is_spam="spam" in response_text and "not spam" not in response_text
+    lines = response.content.strip().splitlines()
+    is_spam = any("spam: yes" in line.lower() for line in lines)
+    spam_reason = ""
+    email_category = ""
 
-    spam_reason = None
-    if is_spam and "reason:" in response_text:
-        spam_reason = response_text.split("reason:")[1].strip()
+    for line in lines:
+        if line.lower().startswith("reason:"):
+            spam_reason = line.split(":", 1)[1].strip()
+        if line.lower().startswith("category:"):
+            email_category = line.split(":", 1)[1].strip().lower()
 
-    email_category = None
     if not is_spam:
         categories = ["inquiry", "complaint", "thank you", "request", "information"]
         for category in categories:
-            if category in response_text:
+            if category in response.content.lower():
                 email_category = category
                 break
     new_messages = state.get("messages", []) + [
